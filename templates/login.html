@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Login</h2>
+
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<div id="msg"></div>
+
+</div>
+
+<script>
+
+async function login(){
+
+let username = document.getElementById("username").value
+let password = document.getElementById("password").value
+
+let res = await fetch("/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username,password})
+})
+
+let r = await res.json()
+
+if(r.success){
+    window.location.href="/sender"
+}else{
+    document.getElementById("msg").innerHTML="Invalid Login"
+}
+
+}
+
+</script>
+
+</body>
+</html>

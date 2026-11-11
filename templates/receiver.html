@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Receiver Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Receiver Dashboard</h2>
+
+<input id="a1" placeholder="a1">
+<input id="a2" placeholder="a2">
+<input id="a3" placeholder="a3">
+<input id="a4" placeholder="a4">
+
+<button onclick="verify()">Verify</button>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+
+async function verify(){
+
+    let a1=document.getElementById("a1").value
+    let a2=document.getElementById("a2").value
+    let a3=document.getElementById("a3").value
+    let a4=document.getElementById("a4").value
+
+    let res = await fetch("/verify",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({a1,a2,a3,a4})
+    })
+
+    let r = await res.json()
+
+    if(r.valid)
+        document.getElementById("output").innerHTML="Data: "+r.data
+    else
+        document.getElementById("output").innerHTML="Verification Failed"
+
+}
+
+</script>
+
+</body>
+</html>

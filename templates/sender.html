@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sender Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Secure File Dashboard</h2>
+
+<h3>Upload & Encrypt File</h3>
+
+<input id="a1" placeholder="Key Part 1 (e.g., 123)">
+<input id="a2" placeholder="Key Part 2 (e.g., 456)">
+<input id="a3" placeholder="Key Part 3 (e.g., 789)">
+<input id="a4" placeholder="Key Part 4 (e.g., 111)">
+
+<input type="file" id="file">
+
+<button onclick="uploadFile()">Upload & Encrypt</button>
+
+<hr>
+
+<h3>Secure Download</h3>
+
+<input id="filename" placeholder="Enter filename (e.g., iris.csv.enc)">
+
+<input id="da1" placeholder="Key Part 1">
+<input id="da2" placeholder="Key Part 2">
+<input id="da3" placeholder="Key Part 3">
+<input id="da4" placeholder="Key Part 4">
+
+<button onclick="secureDownload()">Download Securely</button>
+
+</div>
+
+<script>
+
+async function uploadFile(){
+
+    let fileInput = document.getElementById("file")
+
+    if(fileInput.files.length === 0){
+        alert("Select a file first")
+        return
+    }
+
+    let a1 = document.getElementById("a1").value
+    let a2 = document.getElementById("a2").value
+    let a3 = document.getElementById("a3").value
+    let a4 = document.getElementById("a4").value
+
+    if(a1 === "" || a2 === "" || a3 === "" || a4 === ""){
+        alert("Enter all key parts")
+        return
+    }
+
+    let formData = new FormData()
+
+    formData.append("file", fileInput.files[0])
+    formData.append("a1", a1)
+    formData.append("a2", a2)
+    formData.append("a3", a3)
+    formData.append("a4", a4)
+
+    let res = await fetch("/upload",{
+        method:"POST",
+        body:formData
+    })
+
+    let r = await res.json()
+
+    alert("File uploaded, encrypted & secured successfully 🔐")
+
+}
+
+async function secureDownload(){
+
+    let filename = document.getElementById("filename").value
+    let a1 = document.getElementById("da1").value
+    let a2 = document.getElementById("da2").value
+    let a3 = document.getElementById("da3").value
+    let a4 = document.getElementById("da4").value
+
+    if(filename === ""){
+        alert("Enter filename")
+        return
+    }
+
+    if(a1 === "" || a2 === "" || a3 === "" || a4 === ""){
+        alert("Enter all key parts")
+        return
+    }
+
+    let res = await fetch("/secure_download",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({filename,a1,a2,a3,a4})
+    })
+
+    let contentType = res.headers.get("Content-Type")
+
+    if(contentType && contentType.includes("application/json")){
+        let r = await res.json()
+        if(!r.valid){
+            alert("Verification Failed ❌")
+            return
+        }
+    }
+
+    let blob = await res.blob()
+    let url = window.URL.createObjectURL(blob)
+
+    let a = document.createElement("a")
+    a.href = url
+    a.download = filename.replace(".enc","")
+    a.click()
+
+}
+
+</script>
+
+</body>
+</html>
